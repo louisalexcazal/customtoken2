@@ -1,0 +1,7 @@
+name: Custom paragraph tokens
+description: Ajoute les jetons de l'entité parent aux champs de paragraphe
+package: Custom
+
+type: module
+core: 8.x
+core_version_requirement: ^8 || ^9

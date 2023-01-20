@@ -1,0 +1,30 @@
+<?php
+
+function customtoken_token_info_alter(&$info) {
+  $info['tokens']['paragraph']['parent_entity'] = [
+    'name' => 'Parent entity',
+    'description' => 'Parent entity of the paragraph',
+  ];
+}
+
+function customtoken_tokens($type, $tokens, array $data, array $options, \Drupal\Core\Render\BubbleableMetadata $bubbleable_metadata) {
+  $replacements = [];
+
+  if ($type == 'paragraph' && $paragraph = $data['paragraph']) {
+    $parent = $paragraph->getParentEntity();
+    $bubbleable_metadata->addCacheableDependency($parent);
+
+    foreach ($tokens as $name => $original) {
+      if ($name == 'parent_entity') {
+        $replacements[$original] = $parent->get('field_repertoire_consultation')->value;
+      }
+    }
+
+    $token_service = \Drupal::token();
+    if ($parent_entity_tokens = $token_service->findWithPrefix($tokens, 'parent_entity')) {
+      $replacements += $token_service->generate($parent->getEntityTypeId(), $parent_entity_tokens, [$parent->getEntityTypeId() => $parent], $options, $bubbleable_metadata);
+    }
+  }
+
+  return $replacements;
+}
